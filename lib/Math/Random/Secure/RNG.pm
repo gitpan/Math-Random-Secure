@@ -52,6 +52,12 @@ __END__
 
 Math::Random::Secure::RNG - The underlying PRNG, as an object.
 
+=head1 SYNOPSIS
+
+ use Math::Random::Secure::RNG;
+ my $rng = Math::Random::Secure::RNG->new();
+ my $int = $rng->generate();
+
 =head1 DESCRIPTION
 
 This represents a random number generator, as an object.

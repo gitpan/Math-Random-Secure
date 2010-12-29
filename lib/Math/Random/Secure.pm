@@ -10,7 +10,7 @@ use Math::Random::Secure::RNG;
 # by irand() by this number should do that exactly.
 use constant DIVIDE_BY => 2**32;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 our $RNG;
 
 our @EXPORT_OK = qw(rand srand irand);
@@ -23,15 +23,16 @@ sub rand (;$) {
 
 sub irand (;$) {
     my ($limit) = @_;
-    # Duplicate perl's documented behavior for $limit.
-    if (defined $limit) {
-        $limit = 1 if $limit == 0;
-    }
     _srand_if_necessary();
+    my $int = $RNG->generate();
     if (defined $limit) {
-        return $RNG->generate() % $limit;
+        # We can't just use the mod operator because it will bias
+        # our output. Search for "modulo bias" on the Internet for
+        # details. This is slower than mod(), but does not have a bias,
+        # as demonstrated by our uniform.t test.
+        return int(_to_float($int, $limit));
     }
-    return $RNG->generate();
+    return $int;
 }
 
 sub srand (;$) {
@@ -57,7 +58,7 @@ sub _srand_if_necessary {
 
 sub _to_float {
     my ($integer, $limit) = @_;
-    $limit = 1 if !defined $limit;
+    $limit = 1 if !$limit;
     return ($integer / DIVIDE_BY) * $limit;
 }
 
@@ -80,6 +81,12 @@ Math::Random::Secure - Cryptographically-secure, cross-platform replacement for 
  # Get a random integer (faster than int(rand))
  use Math::Random::Secure qw(irand);
  my $int = irand();
+
+ # Random integer between 0 and 9 inclusive.
+ $int = irand(10);
+
+ # Random floating-point number greater than or equal to 0.0 and less than 9.0.
+ $float = rand(10);
 
 =head1 DESCRIPTION
 
@@ -169,7 +176,7 @@ those other sources to seed itself.
 We use F</dev/urandom> on Unix-like systems, because one of the requirements
 of duplicating C<rand> is that we never block waiting for seed data,
 and F</dev/random> could do that. However, it's possible that F</dev/urandom>
-system could run out of "truly random" data and start to use its built-in
+could run out of "truly random" data and start to use its built-in
 pseudo-random number generator to generate data. On most systems, this should
 still provide a very good seed for nearly all uses, but it may not be suitable
 for very high-security cryptographic circumstances.
@@ -186,12 +193,11 @@ argument, and set C<$Math::Random::Secure::RNG> to your own instance of
 L<Math::Random::Secure::RNG>. The "seeder" is an instance of
 L<Crypt::Random::Source::Base>, which should allow you to use most
 random-data sources in existence for your seeder, should you wish.
-Math::Random::Secure.
 
 =head2 Seed Exhaustion
 
 Perl's built-in C<srand> reads 32 bits from F</dev/urandom>. We read
-1024 bits. This means that we are more likely to exhaust available
+8192 bits. This means that we are more likely to exhaust available
 truly-random data than the built-in C<srand> is, and cause F</dev/urandom>
 to fall back on its psuedo-random number generator. Normally this is not
 a problem, since L</srand> is only called once per Perl process or thread,
@@ -199,6 +205,47 @@ but it is something that you should be aware of if you are going to
 be in a situation where you have many new Perl processes or threads
 and you have very high security requirements (on the order of generating
 private SSH or GPG keypairs, SSL private keys, etc.).
+
+=head1 SEE ALSO
+
+=over
+
+=item L<http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator>
+
+Describes the requirements and nature of a cryptographically-secure
+random number generator.
+
+=item L<http://en.wikipedia.org/wiki/CryptGenRandom>, 
+
+More information about the Windows functions we use to seed ourselves. The
+article also has some information about the weaknesses in Windows 2000's 
+C<CryptGenRandom> implementation.
+
+=item L<http://www.computerworld.com/s/article/9048438/Microsoft_confirms_that_XP_contains_random_number_generator_bug>
+
+A news article about the Windows 2000/XP CryptGenRandom weakness, fixed
+in Vista and XP Service Pack 3.
+
+=item L<http://en.wikipedia.org/wiki/Random_number_generator_attack>
+
+A description of ways to attack a random number generator, which can
+help in understanding why such a generator needs to be secure.
+
+=item L<Math::Random::Secure::RNG>
+
+The underlying random-number generator and seeding code for
+Math::Random::Secure.
+
+=item L<Crypt::Source::Random>
+
+=item L<Crypt::Random>
+
+=item L<Math::TrulyRandom>
+
+All of these modules contain generators for "truly random" data, but they
+don't contain a simple C<rand> replacement and they can be very slow.
+
+=back
 
 =head1 SUPPORT
 

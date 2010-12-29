@@ -25,7 +25,7 @@ my %WriteMakefileArgs = (
     'Crypt::Random::Source' => '0',
     'Math::Random::ISAAC' => '1.0.3'
   },
-  'VERSION' => '0.01',
+  'VERSION' => '0.02',
   'test' => {
     'TESTS' => 't/*.t'
   }
