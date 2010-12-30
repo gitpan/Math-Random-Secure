@@ -21,19 +21,22 @@ sub BUILD {
     if ($self->has_seed) {
         my $seed = $self->seed;
         if (length($seed) < 8) {
-            warn "Your seed is less than 8 bytes (64 bits). It could be"
-                 . " easy to crack";
+            warnings::warnif(__PACKAGE__, 
+                "Your seed is less than 8 bytes (64 bits). It could be"
+                . " easy to crack");
         }
         # If it looks like we were seeded with a 32-bit integer, warn the
         # user that they are making a dangerous, easily-crackable mistake.
         # We do this during BUILD so that it happens during srand() in
         # Math::Secure::RNG.
         elsif (length($seed) <= 10 and $seed =~ /^\d+$/) {
-            warn "RNG seeded with a 32-bit integer, this is easy to crack";
+            warnings::warnif(__PACKAGE__,
+                "RNG seeded with a 32-bit integer, this is easy to crack");
         }
     }
     elsif ($self->seed_size < 8) {
-        warn "Setting seed_size to less than 8 is not recommended";
+        warnings::warnif(__PACKAGE__,
+            "Setting seed_size to less than 8 is not recommended");
     }
 }
 

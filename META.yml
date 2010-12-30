@@ -4,8 +4,8 @@ author:
   - 'Max Kanat-Alexander <mkanat@cpan.org>'
 build_requires:
   List::MoreUtils: 0
-  Test::Exception: 0
   Test::More: 0
+  Test::Warn: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.31
 dynamic_config: 0
@@ -21,4 +21,4 @@ requires:
   Any::Moose: 0
   Crypt::Random::Source: 0
   Math::Random::ISAAC: 1.0.3
-version: 0.02
+version: 0.03

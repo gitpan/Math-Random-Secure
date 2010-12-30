@@ -10,8 +10,8 @@ my %WriteMakefileArgs = (
   'AUTHOR' => 'Max Kanat-Alexander <mkanat@cpan.org>',
   'BUILD_REQUIRES' => {
     'List::MoreUtils' => '0',
-    'Test::Exception' => '0',
-    'Test::More' => '0'
+    'Test::More' => '0',
+    'Test::Warn' => '0'
   },
   'CONFIGURE_REQUIRES' => {
     'ExtUtils::MakeMaker' => '6.31'
@@ -25,7 +25,7 @@ my %WriteMakefileArgs = (
     'Crypt::Random::Source' => '0',
     'Math::Random::ISAAC' => '1.0.3'
   },
-  'VERSION' => '0.02',
+  'VERSION' => '0.03',
   'test' => {
     'TESTS' => 't/*.t'
   }

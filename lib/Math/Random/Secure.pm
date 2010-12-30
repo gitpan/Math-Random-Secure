@@ -10,7 +10,7 @@ use Math::Random::Secure::RNG;
 # by irand() by this number should do that exactly.
 use constant DIVIDE_BY => 2**32;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 our $RNG;
 
 our @EXPORT_OK = qw(rand srand irand);
@@ -42,11 +42,12 @@ sub srand (;$) {
         $args{seed} = $value;
     }
     $RNG = Math::Random::Secure::RNG->new(%args);
+    # This makes srand return the seed and also makes sure that we
+    # get the seed right now, if no $value was passed.
     return $RNG->seed;
 }
 
 sub _srand_if_necessary {
-    my ($limit) = @_;
     if (!defined $RNG) {
         Math::Random::Secure::srand();
     }
@@ -85,7 +86,8 @@ Math::Random::Secure - Cryptographically-secure, cross-platform replacement for 
  # Random integer between 0 and 9 inclusive.
  $int = irand(10);
 
- # Random floating-point number greater than or equal to 0.0 and less than 9.0.
+ # Random floating-point number greater than or equal to 0.0 and 
+ # less than 10.0.
  $float = rand(10);
 
 =head1 DESCRIPTION
@@ -139,12 +141,15 @@ they are used in a thread or process.
 
 Seeds the random number generator, much like Perl's built-in C<srand>,
 except that it uses a much larger and more secure seed. The seed should
-be passed as a string of bytes, at least 1024 bytes in length.
+be passed as a string of bytes, at least 8 bytes in length, and more
+ideally between 32 and 64 bytes. (See L<Math::Random::Secure::RNG/seed>
+for more info.)
 
 If you do not pass a seed, a seed will be generated automatically using
 a secure mechanism. See L</IMPLEMENTATION DETAILS> for more information.
 
-It returns the seed generated.
+This function returns the seed that generated (or the seed that was passed
+in, if you passed one in).
 
 =head2 irand
 
@@ -196,8 +201,8 @@ random-data sources in existence for your seeder, should you wish.
 
 =head2 Seed Exhaustion
 
-Perl's built-in C<srand> reads 32 bits from F</dev/urandom>. We read
-8192 bits. This means that we are more likely to exhaust available
+Perl's built-in C<srand> reads 32 bits from F</dev/urandom>. By default,
+we read 512 bits. This means that we are more likely to exhaust available
 truly-random data than the built-in C<srand> is, and cause F</dev/urandom>
 to fall back on its psuedo-random number generator. Normally this is not
 a problem, since L</srand> is only called once per Perl process or thread,
