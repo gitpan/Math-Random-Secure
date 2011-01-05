@@ -22,16 +22,16 @@ my %WriteMakefileArgs = (
   'NAME' => 'Math::Random::Secure',
   'PREREQ_PM' => {
     'Any::Moose' => '0',
-    'Crypt::Random::Source' => '0',
-    'Math::Random::ISAAC' => '1.0.3'
+    'Crypt::Random::Source' => '0.07',
+    'Math::Random::ISAAC' => '1.0.1'
   },
-  'VERSION' => '0.03',
+  'VERSION' => '0.04',
   'test' => {
     'TESTS' => 't/*.t'
   }
 );
 
-if ($^O =~ /Win32i/) {
+if ($^O =~ /Win32/i) {
     $WriteMakefileArgs{PREREQ_PM}->{'Crypt::Random::Source::Strong::Win32'} = 0;
 }
 

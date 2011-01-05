@@ -7,7 +7,7 @@ override _build_WriteMakefile_dump => sub {
     my $dump = super();
     $dump .= <<'END';
 
-if ($^O =~ /Win32i/) {
+if ($^O =~ /Win32/i) {
     $WriteMakefileArgs{PREREQ_PM}->{'Crypt::Random::Source::Strong::Win32'} = 0;
 }
 END

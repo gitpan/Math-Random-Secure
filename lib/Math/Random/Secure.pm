@@ -1,4 +1,7 @@
 package Math::Random::Secure;
+BEGIN {
+  $Math::Random::Secure::VERSION = '0.04';
+}
 use strict;
 use 5.008;
 use base qw(Exporter);
@@ -10,7 +13,6 @@ use Math::Random::Secure::RNG;
 # by irand() by this number should do that exactly.
 use constant DIVIDE_BY => 2**32;
 
-our $VERSION = '0.03';
 our $RNG;
 
 our @EXPORT_OK = qw(rand srand irand);

@@ -1,4 +1,7 @@
 package Math::Random::Secure::RNG;
+BEGIN {
+  $Math::Random::Secure::RNG::VERSION = '0.04';
+}
 use Any::Moose;
 use Math::Random::ISAAC;
 use Crypt::Random::Source::Factory;

@@ -25,8 +25,8 @@
          },
          "requires" : {
             "Any::Moose" : 0,
-            "Crypt::Random::Source" : 0,
-            "Math::Random::ISAAC" : "v1.0.3"
+            "Crypt::Random::Source" : "0.07",
+            "Math::Random::ISAAC" : "v1.0.1"
          }
       },
       "test" : {
@@ -41,6 +41,6 @@
       }
    },
    "release_status" : "stable",
-   "version" : "0.03"
+   "version" : "0.04"
 }
 

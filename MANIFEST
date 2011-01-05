@@ -7,10 +7,8 @@ Makefile.PL
 README
 dist.ini
 inc/MRSMakeMaker.pm
-inc/Test/RandomWalk/Int.pm
 lib/Math/Random/Secure.pm
 lib/Math/Random/Secure/RNG.pm
-lib/Math/Random/Secure/RNG.pm.~1~
 t/author-uniform.t
 t/compile.t
 t/memory.t

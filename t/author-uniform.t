@@ -11,8 +11,7 @@ use strict;
 use warnings;
 use Test::More;
 use Math::Random::Secure qw(rand irand);
-use Statistics::Test::RandomWalk;
-use inc::Test::RandomWalk::Int;
+use Statistics::Test::RandomWalk 0.02;
 
 # 2% variation is acceptable.
 our $ACCEPTABLE = 0.02;
@@ -35,13 +34,12 @@ sub test_uniform {
         #$num_runs = $limit * 2;
     }
 
-    my $tester;
+    my $tester = Statistics::Test::RandomWalk->new();
     if ($rng == \&irand) {
-        $tester = inc::Test::RandomWalk::Int->new(($limit || 2**32) - 1);
+        $tester->set_rescale_factor($limit || 2**32);
         $tester->set_data(sub { $rng->($limit) }, $num_runs);
     }
     else {
-        $tester = Statistics::Test::RandomWalk->new();
         my $divide_by;
         $divide_by = $limit - (1/(2**32)) if $limit;
         $tester->set_data(
