@@ -1,12 +1,16 @@
 package Math::Random::Secure::RNG;
 BEGIN {
-  $Math::Random::Secure::RNG::VERSION = '0.04';
+  $Math::Random::Secure::RNG::VERSION = '0.05';
 }
-use Any::Moose;
+use Any::Moose qw(Moose ::Util::TypeConstraints);
 use Math::Random::ISAAC;
 use Crypt::Random::Source::Factory;
 use constant ON_WINDOWS => $^O =~ /Win32/i ? 1 : 0;
 use if ON_WINDOWS, 'Crypt::Random::Source::Strong::Win32';
+
+subtype 'MRS::RNG::Seed' => as 'Str' => where { _check_seed($_) };
+subtype 'MRS::RNG::Rng' => as 'Object' 
+    => where { $_->can('irand') && $_->can('rand') };
 
 has seeder => (is => 'ro', isa => 'Crypt::Random::Source::Base', 
                lazy_build => 1);
@@ -14,30 +18,35 @@ has seeder => (is => 'ro', isa => 'Crypt::Random::Source::Base',
 # to the author of ISAAC and he said it's fine to not use a full 256
 # integers to seed ISAAC.
 has seed_size => (is => 'ro', isa => 'Int', default => 64);
-has seed => (is => 'ro', isa => 'Str', lazy_build => 1,
+has seed => (is => 'rw', isa => 'MRS::RNG::Seed', lazy_build => 1,
              clearer => 'clear_seed', predicate => 'has_seed');
-has rng => (is => 'ro', isa => 'Object', lazy_build => 1);
+has rng => (is => 'ro', isa => 'MRS::RNG::Rng', lazy_build => 1, 
+            handles => ['irand', 'rand'], clearer => 'clear_rng');
 
 sub BUILD {
     my ($self) = @_;
 
-    if ($self->has_seed) {
-        my $seed = $self->seed;
-        if (length($seed) < 8) {
-            warn "Your seed is less than 8 bytes (64 bits). It could be"
-                 . " easy to crack";
-        }
-        # If it looks like we were seeded with a 32-bit integer, warn the
-        # user that they are making a dangerous, easily-crackable mistake.
-        # We do this during BUILD so that it happens during srand() in
-        # Math::Secure::RNG.
-        elsif (length($seed) <= 10 and $seed =~ /^\d+$/) {
-            warn "RNG seeded with a 32-bit integer, this is easy to crack";
-        }
-    }
-    elsif ($self->seed_size < 8) {
+    if ($self->seed_size < 8) {
         warn "Setting seed_size to less than 8 is not recommended";
     }
+}
+
+sub _check_seed {
+    my ($seed) = @_;
+    if (length($seed) < 8) {
+        warn "Your seed is less than 8 bytes (64 bits). It could be"
+             . " easy to crack";
+    }
+    # If it looks like we were seeded with a 32-bit integer, warn the
+    # user that they are making a dangerous, easily-crackable mistake.
+    # We do this during BUILD so that it happens during srand() in
+    # Math::Secure::RNG.
+    elsif (length($seed) <= 10 and $seed =~ /^\d+$/) {
+        warn "RNG seeded with a 32-bit integer, this is easy to crack";
+    }
+
+    # _check_seed is used as a type constraint, so needs to return 1.
+    return 1;
 }
 
 sub _build_seeder {
@@ -69,15 +78,15 @@ sub _build_rng {
     # One part of having a cryptographically-secure RNG is not being
     # able to see the seed in the internal state of the RNG.
     $self->clear_seed;
-    return $rng;
+    # It's faster to skip the frontend interface of Math::Random::ISAAC
+    # and just use the backend directly. However, in case the internal
+    # code of Math::Random::ISAAC changes at some point, we do make sure
+    # that the {backend} element actually exists first.
+    return $rng->{backend} ? $rng->{backend} : $rng;
 }
 
-sub generate {
-    my ($self) = @_;
-    return $self->rng->irand();
-}
-
-__PACKAGE__
+__PACKAGE__->meta->make_immutable;
+__PACKAGE__;
 
 __END__
 
@@ -89,7 +98,7 @@ Math::Random::Secure::RNG - The underlying PRNG, as an object.
 
  use Math::Random::Secure::RNG;
  my $rng = Math::Random::Secure::RNG->new();
- my $int = $rng->generate();
+ my $int = $rng->irand();
 
 =head1 DESCRIPTION
 
@@ -105,9 +114,14 @@ C<new> method that works like L<Mouse> or L<Moose> modules work.
 
 =head1 METHODS
 
-=head2 generate
+=head2 irand
 
 Generates a random unsigned 32-bit integer.
+
+=head2 rand
+
+Generates a random floating-point number greater than or equal to 0
+and less than 1.
 
 =head1 ATTRIBUTES
 

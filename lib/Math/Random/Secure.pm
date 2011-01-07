@@ -1,6 +1,6 @@
 package Math::Random::Secure;
 BEGIN {
-  $Math::Random::Secure::VERSION = '0.04';
+  $Math::Random::Secure::VERSION = '0.05';
 }
 use strict;
 use 5.008;
@@ -25,8 +25,8 @@ sub rand (;$) {
 
 sub irand (;$) {
     my ($limit) = @_;
-    _srand_if_necessary();
-    my $int = $RNG->generate();
+    Math::Random::Secure::srand() if !defined $RNG;
+    my $int = $RNG->irand();
     if (defined $limit) {
         # We can't just use the mod operator because it will bias
         # our output. Search for "modulo bias" on the Internet for
@@ -39,24 +39,25 @@ sub irand (;$) {
 
 sub srand (;$) {
     my ($value) = @_;
-    my %args;
-    if (defined $value) {
-        $args{seed} = $value;
+    if (defined $RNG) {
+        if (defined $value) {
+            $RNG->seed($value);
+        }
+        else {
+            $RNG->clear_seed;
+        }
+        $RNG->clear_rng;
     }
-    $RNG = Math::Random::Secure::RNG->new(%args);
+    else {
+        my %args;
+        if (defined $value) {
+            $args{seed} = $value;
+        }
+        $RNG = Math::Random::Secure::RNG->new(%args);
+    }
     # This makes srand return the seed and also makes sure that we
     # get the seed right now, if no $value was passed.
     return $RNG->seed;
-}
-
-sub _srand_if_necessary {
-    if (!defined $RNG) {
-        Math::Random::Secure::srand();
-    }
-    # Make sure each thread has its own RNG.
-    if ($threads::shared::threads_shared and threads::shared::_id($RNG)) {
-        Math::Random::Secure::srand();
-    }
 }
 
 sub _to_float {
