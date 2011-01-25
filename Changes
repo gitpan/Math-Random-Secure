@@ -1,3 +1,7 @@
+0.06 Mon Jan 24 2011
+    - Only require ExtUtils::MakeMaker 6.12, to make things easier on
+      people running Perl 5.8.
+
 0.05 Fri Jan 07 2011
     - Make irand() and rand() 2.5x faster.
     - Now, if you specify $Math::Random::Secure::RNG before

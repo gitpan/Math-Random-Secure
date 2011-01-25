@@ -1,6 +1,6 @@
 package Math::Random::Secure::RNG;
 BEGIN {
-  $Math::Random::Secure::RNG::VERSION = '0.05';
+  $Math::Random::Secure::RNG::VERSION = '0.06';
 }
 use Any::Moose qw(Moose ::Util::TypeConstraints);
 use Math::Random::ISAAC;

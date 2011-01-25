@@ -1,6 +1,6 @@
 package Math::Random::Secure;
 BEGIN {
-  $Math::Random::Secure::VERSION = '0.05';
+  $Math::Random::Secure::VERSION = '0.06';
 }
 use strict;
 use 5.008;

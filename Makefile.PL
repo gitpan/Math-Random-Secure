@@ -3,7 +3,7 @@
 
 use strict;
 use warnings;
-use ExtUtils::MakeMaker 6.31;
+use ExtUtils::MakeMaker 6.12;
 
 my %WriteMakefileArgs = (
   'ABSTRACT' => 'Cryptographically-secure, cross-platform replacement for rand()',
@@ -14,7 +14,7 @@ my %WriteMakefileArgs = (
     'Test::Warn' => '0'
   },
   'CONFIGURE_REQUIRES' => {
-    'ExtUtils::MakeMaker' => '6.31'
+    'ExtUtils::MakeMaker' => '6.12'
   },
   'DISTNAME' => 'Math-Random-Secure',
   'EXE_FILES' => [],
@@ -25,7 +25,7 @@ my %WriteMakefileArgs = (
     'Crypt::Random::Source' => '0.07',
     'Math::Random::ISAAC' => '1.0.1'
   },
-  'VERSION' => '0.05',
+  'VERSION' => '0.06',
   'test' => {
     'TESTS' => 't/*.t'
   }
